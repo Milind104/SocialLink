@@ -33,10 +33,14 @@ Features:-
    Users can view their friend list and posts.
    Users can see their own posts, as well as posts from other users on their profile page.
    The profile page is accessible by clicking on a user's name from the friend list or posts.
+   
 
-9. ERROR HANDLING AND VALIDATION :-
+10. ERROR HANDLING AND VALIDATION :-
    Proper error handling and validation are implemented for forms and user input.
 
-10. API ENDPOINTS AND DATA STORAGE :-
+11. API ENDPOINTS AND DATA STORAGE :-
    Backend APIs are used for handling user authentication, post-creation, and other functionalities.
    User and post data are stored in a database (e.g., MongoDB) for persistent storage.
+
+client/photos/HomePage.png
+![alt text](client/photos/HomePage.png)
