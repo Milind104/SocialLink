@@ -42,5 +42,9 @@ Features:-
    Backend APIs are used for handling user authentication, post-creation, and other functionalities.
    User and post data are stored in a database (e.g., MongoDB) for persistent storage.
 
-client/photos/HomePage.png
+![alt text](client/photos/signup.png)
+![alt text](client/photos/login.png)
 ![alt text](client/photos/HomePage.png)
+![alt text](client/photos/post.png)
+![alt text](client/photos/comment_darkmode.png)
+
