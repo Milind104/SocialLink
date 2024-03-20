@@ -41,6 +41,8 @@ Features:-
 11. API ENDPOINTS AND DATA STORAGE :-
    Backend APIs are used for handling user authentication, post-creation, and other functionalities.
    User and post data are stored in a database (e.g., MongoDB) for persistent storage.
+-----------------------------------------------------------------------------------------
+------------Some Picture of Website--------- 
 
 ![alt text](client/photos/signup.png)
 ![alt text](client/photos/login.png)
