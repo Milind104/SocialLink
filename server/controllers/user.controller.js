@@ -21,11 +21,11 @@ const generateAccessTokenAndrefreshToken = async(id) =>{
 }
 const registerUser = asyncHandler(async (req, res) => {
     // destructure all the fields
-    const {email, password, firstName, lastName, location, occupation} = req.body;
+    const {email, password, firstName, lastName, country, occupation} = req.body;
     
     // if any of required fields are empty
     if([
-        email, password, firstName, lastName, location, occupation
+        email, password, firstName, lastName, country, occupation
     ].some((field)=>{ field?.trim() === ""})
     ){
         throw new ApiError(400, "All fields are required!!!");
@@ -37,7 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Email is already registered!!!");
     }
 
-    console.log(req.files);
+    console.log(req.body);
     // upload images on cloudinary from local storage
     const profileImgLocalPath = req.files?.profileImg[0]?.path;
     const coverImgLocalPath = req.files?.coverImg[0]?.path;
@@ -55,7 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
         lastName,
         profileImg: profileImg?.url || "",
         coverImg: coverImg?.url || "",
-        location,
+        country,
         occupation
     });
     const createdUser = await User.findById(user._id).select(

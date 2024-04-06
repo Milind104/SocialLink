@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const UserSchema = new mongoose.Schema({
     email: {
@@ -43,7 +44,7 @@ const UserSchema = new mongoose.Schema({
             ref: "User"
         }
     ],
-    location: {
+    country: {
         type: String,
     },
     occupation: {
