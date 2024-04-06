@@ -1,30 +1,23 @@
-import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+dotenv.config({path: "../.env"});
+import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
-import authRoutes from "./routes/auth.js";
+import userRouter from "./routes/user.routes.js"
 import userRoutes from "./routes/users.js";
 import postRoutes from "./routes/posts.js";
-import { register } from "./controllers/auth.js";
-import { createPost } from "./controllers/posts.js";
-import { verifyToken } from "./middleware/auth.js";
 import app from "./app.js";
-import upload from "./middleware/multer.js"
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({path: "../.env"});
 
-app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 
 /* ROUTES WITH FILES */
-app.post("/auth/register", upload.single("picture"), register);
-app.post("/posts", verifyToken, upload.single("picture"), createPost);
+// app.post("/posts", verifyToken, upload.single("picture"), createPost);
 
 /* ROUTES */
-app.use("/auth", authRoutes);
+app.use("/auth", userRouter);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 
@@ -32,8 +25,8 @@ app.use("/posts", postRoutes);
 const PORT = process.env.PORT || 6001;
 mongoose
   .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
   })
   .then(() => {
     app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
