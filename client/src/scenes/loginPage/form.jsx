@@ -1,13 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
   Typography,
   useTheme,
   useMediaQuery,
-  Checkbox,
   TextField,
-  Select,
   MenuItem,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -18,9 +16,10 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
-
-import Country from "./country"; // Importing the Country component
-import Date from "./date";
+import Checkbox from "@mui/material/Checkbox"; // Import Checkbox component
+import Country from "./country";
+import DatePicker from "./date";
+import Switches from "./switch";
 
 const jobTitles = [
   "Software Engineer",
@@ -30,27 +29,36 @@ const jobTitles = [
   "Business Analyst",
   "Marketing Manager",
 ];
+const Schoolcollegeunivercity = [
+  "DAIICT",
+  "Nirma",
+  "GTU",
+  "PDPU",
+  "DDIT",
+  "AU",
+];
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
   email: yup.string().email("invalid email").required("required"),
-  password: yup.string().required("required"),
-  jobtitle: yup.string().when("student", {
-    is: false,
-    then: yup.string().required("required"),
-    otherwise: yup.string().notRequired(),
-  }),
+  password: yup
+    .string()
+    .required("required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+      "Password must contain at least 6 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+  jobtitle: yup.string().required("required"),
   Schoolcollegeunivercity: yup.string().required("required"),
-  picture: yup.string().required("required"),
-  // Add CountryRegion field to the schema
+  profileImg: yup.string().required("required"),
+
   CountryRegion: yup.string().required("required"),
   Date: yup.string().required("required"),
   age: yup
     .boolean()
     .oneOf([true], "You must be at least 17 years old")
     .required("required"),
-  student: yup.boolean().required(),
 });
 
 const loginSchema = yup.object().shape({
@@ -65,11 +73,10 @@ const initialValuesRegister = {
   password: "",
   jobtitle: "",
   Schoolcollegeunivercity: "",
-  picture: "",
+  profileImg: "",
   CountryRegion: "",
   Date: "",
   age: false,
-  student: false,
 };
 
 const initialValuesLogin = {
@@ -92,7 +99,7 @@ const Form = () => {
     for (let value in values) {
       formData.append(value, values[value]);
     }
-    formData.append("picturePath", values.picture.name);
+    formData.append("picturePath", values.profileImg.name);
 
     const savedUserResponse = await fetch(
       "http://localhost:3001/auth/register",
@@ -205,27 +212,9 @@ const Form = () => {
 
                 <TextField
                   select
-                  label="Most recent job title"
-                  value={values.jobtitle}
-                  onChange={handleChange}
-                  name="jobtitle"
-                  error={Boolean(touched.jobtitle) && Boolean(errors.jobtitle)}
-                  helperText={touched.jobtitle && errors.jobtitle}
-                  disabled={values.student} // Disable if student is true
-                  sx={{ gridColumn: "span 4" }}
-                >
-                  {jobTitles.map((title) => (
-                    <MenuItem key={title} value={title}>
-                      {title}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <TextField
-                  label="School/college/univercity"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
+                  label="School/college/university"
                   value={values.Schoolcollegeunivercity}
+                  onChange={handleChange}
                   name="Schoolcollegeunivercity"
                   error={
                     Boolean(touched.Schoolcollegeunivercity) &&
@@ -236,9 +225,15 @@ const Form = () => {
                     errors.Schoolcollegeunivercity
                   }
                   sx={{ gridColumn: "span 4" }}
-                />
+                >
+                  {Schoolcollegeunivercity.map((name) => (
+                    <MenuItem key={name} value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </TextField>
 
-                <Date />
+                <DatePicker />
 
                 <Box
                   gridColumn="span 4"
@@ -250,7 +245,7 @@ const Form = () => {
                     acceptedFiles=".jpg,.jpeg,.png"
                     multiple={false}
                     onDrop={(acceptedFiles) =>
-                      setFieldValue("picture", acceptedFiles[0])
+                      setFieldValue("profileImg", acceptedFiles[0])
                     }
                   >
                     {({ getRootProps, getInputProps }) => (
@@ -261,11 +256,11 @@ const Form = () => {
                         sx={{ "&:hover": { cursor: "pointer" } }}
                       >
                         <input {...getInputProps()} />
-                        {!values.picture ? (
-                          <p>Add Picture Here</p>
+                        {!values.profileImg ? (
+                          <p>Add profileImg Here</p>
                         ) : (
                           <FlexBetween>
-                            <Typography>{values.picture.name}</Typography>
+                            <Typography>{values.profileImg.name}</Typography>
                             <EditOutlinedIcon />
                           </FlexBetween>
                         )}
@@ -273,54 +268,24 @@ const Form = () => {
                     )}
                   </Dropzone>
                 </Box>
+                <Switches />
 
-                <Box
-                  gridColumn="span 4"
-                  sx={{ display: "flex", alignItems: "center" }}
+                <TextField
+                  select
+                  label="Most recent job title"
+                  value={values.jobtitle}
+                  onChange={handleChange}
+                  name="jobtitle"
+                  error={Boolean(touched.jobtitle) && Boolean(errors.jobtitle)}
+                  helperText={touched.jobtitle && errors.jobtitle}
+                  sx={{ gridColumn: "span 4" }}
                 >
-                  <label htmlFor="student" style={{ marginRight: "0.5rem" }}>
-                    I am a student
-                  </label>
-                  <div
-                    style={{ display: "inline-block", position: "relative" }}
-                  >
-                    <input
-                      id="student"
-                      type="checkbox"
-                      checked={values.student}
-                      onChange={(e) =>
-                        setFieldValue("student", e.target.checked)
-                      }
-                      style={{ display: "none" }}
-                    />
-                    <div
-                      style={{
-                        width: "40px",
-                        height: "20px",
-                        borderRadius: "10px",
-                        backgroundColor: values.student
-                          ? palette.primary.main
-                          : palette.action.disabledBackground,
-                        position: "relative",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "16px",
-                          height: "16px",
-                          borderRadius: "50%",
-                          backgroundColor: palette.background.default,
-                          position: "absolute",
-                          top: "50%",
-                          left: values.student ? "24px" : "4px",
-                          transform: "translate(-50%, -50%)",
-                          transition: "left 0.3s ease-in-out",
-                        }}
-                      />
-                    </div>
-                  </div>
-                </Box>
+                  {jobTitles.map((title) => (
+                    <MenuItem key={title} value={title}>
+                      {title}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </>
             )}
 
@@ -383,7 +348,7 @@ const Form = () => {
                 color: palette.primary.main,
                 "&:hover": {
                   cursor: "pointer",
-                  color: palette.primary.light,
+                  color: palette.success.dark,
                 },
               }}
             >
