@@ -3,7 +3,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import  ApiResponse from "../utils/ApiResponse.js";
-
+import bcrypt from "bcryptjs";
 const generateAccessAndrefreshToken = asyncHandler(async(id) =>{
     const user = await User.findById(id);
     // console.log(user.firstName, id);
@@ -42,8 +42,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const profileImg = await uploadOnCloudinary(profileImgLocalPath);
     const coverImg = await uploadOnCloudinary(coverImgLocalPath);
 
-    console.log(profileImgLocalPath, profileImg);
-    console.log(coverImgLocalPath, coverImg);
+    // console.log(profileImgLocalPath, profileImg);
+    // console.log(coverImgLocalPath, coverImg);
     
     // create a new user object 
     const user = await User.create({
@@ -85,8 +85,10 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User does not exist!!!");
     }
 
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
+    console.log(await bcrypt.compare(password, user.password), user); 
     // password is incorrect
-    if(!user.isPasswordCorrect(password)){
+    if(!isPasswordCorrect){
         throw new ApiError(401, "Invalid credentails!!!");
     }
 
