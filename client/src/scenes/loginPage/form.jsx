@@ -2,10 +2,13 @@ import { useState } from "react";
 import {
   Box,
   Button,
-  TextField,
-  useMediaQuery,
   Typography,
   useTheme,
+  useMediaQuery,
+  Checkbox,
+  TextField,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
@@ -16,14 +19,38 @@ import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
 
+import Country from "./country"; // Importing the Country component
+import Date from "./date";
+
+const jobTitles = [
+  "Software Engineer",
+  "Data Scientist",
+  "Product Manager",
+  "UI/UX Designer",
+  "Business Analyst",
+  "Marketing Manager",
+];
+
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
   email: yup.string().email("invalid email").required("required"),
   password: yup.string().required("required"),
-  location: yup.string().required("required"),
-  occupation: yup.string().required("required"),
+  jobtitle: yup.string().when("student", {
+    is: false,
+    then: yup.string().required("required"),
+    otherwise: yup.string().notRequired(),
+  }),
+  Schoolcollegeunivercity: yup.string().required("required"),
   picture: yup.string().required("required"),
+  // Add CountryRegion field to the schema
+  CountryRegion: yup.string().required("required"),
+  Date: yup.string().required("required"),
+  age: yup
+    .boolean()
+    .oneOf([true], "You must be at least 17 years old")
+    .required("required"),
+  student: yup.boolean().required(),
 });
 
 const loginSchema = yup.object().shape({
@@ -36,9 +63,13 @@ const initialValuesRegister = {
   lastName: "",
   email: "",
   password: "",
-  location: "",
-  occupation: "",
+  jobtitle: "",
+  Schoolcollegeunivercity: "",
   picture: "",
+  CountryRegion: "",
+  Date: "",
+  age: false,
+  student: false,
 };
 
 const initialValuesLogin = {
@@ -99,7 +130,15 @@ const Form = () => {
 
   const handleFormSubmit = async (values, onSubmitProps) => {
     if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) await register(values, onSubmitProps);
+    if (isRegister) {
+      // Submit the form only if the checkbox is checked
+      if (values.age) {
+        await register(values, onSubmitProps);
+      } else {
+        // Display an error message or perform any other action
+        console.log("You must be at least 17 years old to register.");
+      }
+    }
   };
 
   return (
@@ -141,6 +180,7 @@ const Form = () => {
                   helperText={touched.firstName && errors.firstName}
                   sx={{ gridColumn: "span 2" }}
                 />
+
                 <TextField
                   label="Last Name"
                   onBlur={handleBlur}
@@ -151,28 +191,55 @@ const Form = () => {
                   helperText={touched.lastName && errors.lastName}
                   sx={{ gridColumn: "span 2" }}
                 />
-                <TextField
-                  label="Location"
+
+                <Country
+                  label="Country"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.location}
-                  name="location"
-                  error={Boolean(touched.location) && Boolean(errors.location)}
-                  helperText={touched.location && errors.location}
+                  value={values.Country}
+                  name="Country"
+                  error={Boolean(touched.Country) && Boolean(errors.Country)}
+                  helperText={touched.Country && errors.Country}
                   sx={{ gridColumn: "span 4" }}
                 />
+
                 <TextField
-                  label="Occupation"
+                  select
+                  label="Most recent job title"
+                  value={values.jobtitle}
+                  onChange={handleChange}
+                  name="jobtitle"
+                  error={Boolean(touched.jobtitle) && Boolean(errors.jobtitle)}
+                  helperText={touched.jobtitle && errors.jobtitle}
+                  disabled={values.student} // Disable if student is true
+                  sx={{ gridColumn: "span 4" }}
+                >
+                  {jobTitles.map((title) => (
+                    <MenuItem key={title} value={title}>
+                      {title}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  label="School/college/univercity"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.occupation}
-                  name="occupation"
+                  value={values.Schoolcollegeunivercity}
+                  name="Schoolcollegeunivercity"
                   error={
-                    Boolean(touched.occupation) && Boolean(errors.occupation)
+                    Boolean(touched.Schoolcollegeunivercity) &&
+                    Boolean(errors.Schoolcollegeunivercity)
                   }
-                  helperText={touched.occupation && errors.occupation}
+                  helperText={
+                    touched.Schoolcollegeunivercity &&
+                    errors.Schoolcollegeunivercity
+                  }
                   sx={{ gridColumn: "span 4" }}
                 />
+
+                <Date />
+
                 <Box
                   gridColumn="span 4"
                   border={`1px solid ${palette.neutral.medium}`}
@@ -206,6 +273,54 @@ const Form = () => {
                     )}
                   </Dropzone>
                 </Box>
+
+                <Box
+                  gridColumn="span 4"
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <label htmlFor="student" style={{ marginRight: "0.5rem" }}>
+                    I am a student
+                  </label>
+                  <div
+                    style={{ display: "inline-block", position: "relative" }}
+                  >
+                    <input
+                      id="student"
+                      type="checkbox"
+                      checked={values.student}
+                      onChange={(e) =>
+                        setFieldValue("student", e.target.checked)
+                      }
+                      style={{ display: "none" }}
+                    />
+                    <div
+                      style={{
+                        width: "40px",
+                        height: "20px",
+                        borderRadius: "10px",
+                        backgroundColor: values.student
+                          ? palette.primary.main
+                          : palette.action.disabledBackground,
+                        position: "relative",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          borderRadius: "50%",
+                          backgroundColor: palette.background.default,
+                          position: "absolute",
+                          top: "50%",
+                          left: values.student ? "24px" : "4px",
+                          transform: "translate(-50%, -50%)",
+                          transition: "left 0.3s ease-in-out",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </Box>
               </>
             )}
 
@@ -230,6 +345,17 @@ const Form = () => {
               helperText={touched.password && errors.password}
               sx={{ gridColumn: "span 4" }}
             />
+            {isRegister && (
+              <Box gridColumn="span 4">
+                <Checkbox
+                  checked={values.age}
+                  onChange={(e) => setFieldValue("age", e.target.checked)}
+                />
+                <Typography>
+                  I confirm that I am at least 17 years old
+                </Typography>
+              </Box>
+            )}
           </Box>
 
           {/* BUTTONS */}
