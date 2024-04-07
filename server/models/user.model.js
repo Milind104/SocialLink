@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const UserSchema = new mongoose.Schema({
     email: {
@@ -81,7 +82,7 @@ UserSchema.methods.generateAccessToken = function(){
     )
 }
 
-UserSchema.methods.generateRefreshToken = function(){
+UserSchema.methods.generateRefreshToken = async function(){
     return jwt.sign(
         {
             _id: this._id,
