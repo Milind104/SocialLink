@@ -3,22 +3,20 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import  ApiResponse from "../utils/ApiResponse.js";
+import bcrypt from "bcryptjs";
+const generateAccessAndrefreshToken = asyncHandler(async(id) =>{
+    const user = await User.findById(id);
+    // console.log(user.firstName, id);
 
-const generateAccessTokenAndrefreshToken = async(id) =>{
-    try {
-        const user = await User.find({_id: id});
-        
-        const accessToken = await user.generateAccessToken();
-        const refreshToken = await user.generateRefreshToken();
-        
-        user.refreshToken = refreshToken;
-        user.save().donotvalidate()
-        
-        return accessToken;
-    } catch (error) {
-        throw new ApiError(500, "Something went wrong while generating accesstoken and refresh token!!!");
-    }
-}
+    const accessToken = await user.generateAccessToken();
+    const refreshToken = await user.generateRefreshToken();
+
+    // console.log(accessToken, refreshToken);
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+    
+    return { accessToken, refreshToken };
+});
 const registerUser = asyncHandler(async (req, res) => {
     // destructure all the fields
     const {email, password, firstName, lastName, country, occupation} = req.body;
@@ -37,15 +35,15 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Email is already registered!!!");
     }
 
-    console.log(req.body);
+    // console.log(req.body);
     // upload images on cloudinary from local storage
     const profileImgLocalPath = req.files?.profileImg[0]?.path;
     const coverImgLocalPath = req.files?.coverImg[0]?.path;
     const profileImg = await uploadOnCloudinary(profileImgLocalPath);
     const coverImg = await uploadOnCloudinary(coverImgLocalPath);
 
-    console.log(profileImgLocalPath, profileImg);
-    console.log(coverImgLocalPath, coverImg);
+    // console.log(profileImgLocalPath, profileImg);
+    // console.log(coverImgLocalPath, coverImg);
     
     // create a new user object 
     const user = await User.create({
@@ -81,28 +79,47 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are required!!!");
     }
 
+    // not registered
+    const user = await User.findOne({email});
+    if(!user){
+        throw new ApiError(404, "User does not exist!!!");
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
+    console.log(await bcrypt.compare(password, user.password), user); 
     // password is incorrect
-    const user = await User.find({email});
-    if(!user.isPasswordCorrect(password)){
+    if(!isPasswordCorrect){
         throw new ApiError(401, "Invalid credentails!!!");
     }
 
+    // console.log("acccess token" ,await user.generateAccessToken());
+    // console.log("refresh token" ,await user.generateRefreshToken());
+    const { accessToken, refreshToken } = await generateAccessAndrefreshToken(user._id);
+    // console.log("AccessToken ",accessToken );
     // create accesstoken and refreshtoken
-    const accessToken = generateAccessTokenAndrefreshToken(user._id);
-    const loggedInUser = await User.find(Selection(
-        "-password -refreshToken"
-    ));
+    // const { accessToken, refreshToken } = await generateAccessTokenAndrefreshToken(user._id);
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
     
-    res.status(200)
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken", user.refreshToken)
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
             200,
-            loggedInUser,
-            "Successfully logged In"
+            {
+                user: loggedInUser,
+                accessToken,
+                refreshToken
+            },
+            "User logged In Successfully"
         )
-    )
+    );
 });
 
 export { registerUser, loginUser };
