@@ -1,22 +1,22 @@
 import express from "express";
 import { getFeedPosts, getUserPosts, likePost, createComment, updatePost,
     deletePost, } from "../controllers/posts.js";
-import { verifyToken } from "../middleware/auth.js";
+import  verifyJWT  from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 /* READ */
-router.get("/", verifyToken, getFeedPosts);
-router.get("/:userId/posts", verifyToken, getUserPosts);
+router.get("/", verifyJWT, getFeedPosts);
+router.get("/:userId/posts", verifyJWT, getUserPosts);
 
 /* UPDATE */
-router.patch("/:id/like", verifyToken, likePost);
-router.patch("/:id", verifyToken, updatePost);
+router.patch("/:id/like", verifyJWT, likePost);
+router.patch("/:id", verifyJWT, updatePost);
 
 /* DELETE */
-router.delete("/:id", verifyToken, deletePost);
+router.delete("/:id", verifyJWT, deletePost);
 
 /* CREATE */
-router.post("/create-comment", verifyToken, createComment);
+router.post("/create-comment", verifyJWT, createComment);
 
 export default router;
