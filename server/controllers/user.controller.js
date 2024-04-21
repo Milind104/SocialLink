@@ -87,9 +87,16 @@ const getAllConnections = asyncHandler( async(req, res) =>{
 
     // const connections = await Connection.find({ _id: userId, status: "Accepted"});
     const connections = await Connection.find({ 
-        $or: [
-            {sender: userId},
-            {receiver: userId}
+        $and: [
+            {
+                $or: [
+                    {sender: userId},
+                    {receiver: userId}
+                ]
+            },
+            {
+                status: "Accepted"
+            }
         ]
     });
 
