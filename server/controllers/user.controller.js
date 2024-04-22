@@ -3,8 +3,9 @@ import Connection from "../models/connection.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js"
 import  ApiResponse from "../utils/ApiResponse.js";
+import Chat from "../models/chat.model.js";
 
-
+/*Connection Actions*/
 const connectToUser = asyncHandler( async(req, res) =>{
     const receiver = req.params.id;
     const sender = req.user._id;
@@ -108,10 +109,48 @@ const getAllConnections = asyncHandler( async(req, res) =>{
     .json(new ApiResponse(200, connections, "Connection list fetched"));
 
 })
+
+const removeConnection = asyncHandler( async(req,  res) =>{
+    const id = req.params.id;
+    const connectionId = req.params.connectionId;
+    const userId = (req.user._id).toString();
+    
+    // console.log(id, connectionId, userId);
+    if(id !== userId){
+        throw new ApiError(401, "Authenticate first");
+    }
+
+    const resp = await Connection.findByIdAndDelete(connectionId);
+    // const resp = await Connection.findOneAndDelete({
+    //     $or: [
+    //         {
+    //             $and: [
+    //                 {sender: id},
+    //                 {receiver: userId}
+    //             ]
+    //         },
+    //         {    $and: [
+    //                 {sender: userId},
+    //                 {receiver: id},
+    //             ]
+    //         }
+    //     ]
+    // })
+
+    if(!resp){
+        throw new ApiError(500, "Something went wrong while working with database");
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200,resp, "Connection removed successfully"));
+})
+
+
 export {
     connectToUser,
     UserRequests,
     acceptUserRequest,
-    getAllConnections
+    getAllConnections,
+    removeConnection,
 }
 
