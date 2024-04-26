@@ -151,11 +151,42 @@ const removeConnection = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, resp, "Connection removed successfully"));
 });
+const getImageUrl = asyncHandler(async (req, res) => {
+  const userId = req.params.userId;
+  const id = req.user._id;
 
+  const connection = await Connection.find({
+    $or: [
+      {
+        $and: [{ sender: userId }, { receiver: id }],
+      },
+      {
+        $and: [{ sender: id }, { receiver: userId }],
+      },
+    ],
+  });
+
+  if (!connection) {
+    throw new ApiError(401, "Make connection first....");
+  }
+
+  const friend = await User.findById(userId);
+
+  if (!friend) {
+    throw new ApiError(404, "User is removed or doesn't exists");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, friend.profileImg, "Image url fetched successfully")
+    );
+});
 export {
   connectToUser,
   UserRequests,
   acceptUserRequest,
   getAllConnections,
   removeConnection,
+  getImageUrl,
 };

@@ -9,6 +9,7 @@ import helmet from "helmet";
 const app = express();
 const allowedOrigins = ["http://localhost:3000", "http://localhost:3001", "*"];
 
+<<<<<<< HEAD
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 // CORS options
@@ -27,6 +28,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.options("http://localhost:3000", cors(corsOptions));
+=======
+app.use(cors({
+    origin: "*",
+    credentials: true
+}))
+>>>>>>> 32ee47a43f983e557b0e0133ad8148a974b4d982
 
 app.use(express.json({ limit: process.env.LIMIT }));
 app.use(express.urlencoded({ extended: true, limit: process.env.LIMIT }));
