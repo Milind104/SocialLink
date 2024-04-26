@@ -1,7 +1,7 @@
 import express, { request } from "express";
 import upload from "../middleware/multer.js";
 import { registerUser, loginUser, logoutUser, refreshAccessToken } from "../controllers/auth.controller.js";
-import { connectToUser, UserRequests, acceptUserRequest, getAllConnections, removeConnection } from "../controllers/user.controller.js";
+import { connectToUser, UserRequests, acceptUserRequest, getAllConnections, removeConnection, getImageUrl } from "../controllers/user.controller.js";
 import { createChat, sendMessage } from "../controllers/chat.controller.js";
 import verifyJWT from "../middleware/auth.middleware.js";
  
@@ -37,6 +37,10 @@ Router.route("/refresh-accesstoken")
 //logout 
 Router.route("/logout")
 .post(verifyJWT, logoutUser);
+
+// get image url 
+Router.route("/image/:userId")
+.get(verifyJWT, getImageUrl);
 
 // connection request
 Router.route("/connect/:id")

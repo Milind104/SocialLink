@@ -99,9 +99,20 @@ const sendMessage = asyncHandler( async(req, res) =>{
     .json(new ApiResponse(200, message, "Message sent Successfully"));
 });
 
+const getAllmessges = asyncHandler( async(req, res) =>{
+    const { chatId } = req.params.chatId;
 
+    const messages = await Message.findById(chatId);
+
+    if(!messages){
+        throw new ApiError(404, "Messages are not fetched successfully...");
+    }
+
+    return res.status(200).json(new ApiResponse(200, messages, "Messages fetched!!!"));
+});
 
 export {
     createChat,
-    sendMessage
+    sendMessage,
+    getAllmessges
 }
