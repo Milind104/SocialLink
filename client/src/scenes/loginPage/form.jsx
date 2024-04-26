@@ -17,7 +17,7 @@ import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
 import Checkbox from "@mui/material/Checkbox"; // Import Checkbox component
-import Country from "./country";
+// import Country from "./country";
 import DatePicker from "./date";
 import Switches from "./switch";
 
