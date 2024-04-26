@@ -160,7 +160,10 @@ const deletePost = asyncHandler( async(req, res) =>{
 })
 
 const getFeedPosts = asyncHandler( async(req, res) =>{
-
+    console.log("..........first");
+    const post = await Post.find().sort({ field: 'asc', _id: -1 }).limit(10);
+    // console.log(post);
+    return res.status(200).json(new ApiResponse(200, post, "My feed post fetched..."));
 })
 
 const updatePost = asyncHandler( async(req, res) =>{
