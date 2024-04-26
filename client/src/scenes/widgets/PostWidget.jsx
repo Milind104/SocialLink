@@ -3,15 +3,17 @@ import {
   FavoriteBorderOutlined,
   FavoriteOutlined,
   ShareOutlined,
-  EditOutlined, DeleteOutlined,
+  EditOutlined,
+  DeleteOutlined,
 } from "@mui/icons-material";
 import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPost } from "state";
+import axios from "axios";
 
 const PostWidget = ({
   postId,
@@ -40,41 +42,63 @@ const PostWidget = ({
   const primary = palette.primary.main;
   const secondary = palette.secondary.main;
 
+  // const patchLike = async () => {
+  //   const response = await axios.patch(`http://localhost:3001/posts/${postId}/like`, {
+
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ userId: loggedInUserId }),
+  //   });
+  //   const updatedPost = await response.json();
+  //   dispatch(setPost({ post: updatedPost }));
+  // };
   const patchLike = async () => {
-    const response = await fetch(`http://localhost:3001/posts/${postId}/like`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: loggedInUserId }),
-    });
-    const updatedPost = await response.json();
-    dispatch(setPost({ post: updatedPost }));
+    try {
+      const response = await axios.patch(
+        `http://localhost:3001/posts/${postId}/like`,
+        { userId: loggedInUserId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("patch like ", response.data.data);
+      const updatedPost = response.data;
+      dispatch(setPost({ post: updatedPost }));
+    } catch (error) {
+      // Handle error
+      console.error("Error patching like:", error);
+    }
   };
 
   const handleCommentPost = async () => {
     if (!commentText.trim()) {
       return;
     }
-  
+
     try {
-      const response = await fetch(`http://localhost:3001/posts/create-comment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        `http://localhost:3001/posts/create-comment`,
+        {
           postId, // The ID of the post for which the comment is being created
           userId, // The ID of the user creating the comment
           text: commentText, // The text of the comment
-        }),
-      });
-  
-      if (response.ok) {
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
         // If the comment is successfully posted, update the post data to include the new comment
-        const updatedPost = await response.json();
+        const updatedPost = response.data;
         dispatch(setPost({ post: updatedPost }));
         setCommentText(""); // Clear the comment input field after posting
       } else {
@@ -86,7 +110,9 @@ const PostWidget = ({
       console.error("Error posting comment:", error);
     }
   };
-
+  // useEffect(async () => {
+  //   const imgUrl = await axios.get(``);
+  // }, [postUserId]);
   return (
     <WidgetWrapper m="2rem 0">
       <Friend
@@ -104,7 +130,7 @@ const PostWidget = ({
           height="auto"
           alt="post"
           style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
-          src={`http://localhost:3001/assets/${picturePath}`}
+          src={picturePath}
         />
       )}
       <FlexBetween mt="0.25rem">
@@ -127,8 +153,8 @@ const PostWidget = ({
             <Typography>{comments.length}</Typography>
           </FlexBetween>
           <IconButton>
-          <ShareOutlined />
-        </IconButton>
+            <ShareOutlined />
+          </IconButton>
         </FlexBetween>
 
         {loggedInUserId === postUserId && (
@@ -151,7 +177,15 @@ const PostWidget = ({
           {comments.length > 0 && (
             <Box mt="1rem">
               {comments.map((comment, i) => (
-                <Box key={`${name}-${i}`} sx={{ display: "flex", alignItems: "center", gap: "0.5rem", mb: "0.5rem" }}>
+                <Box
+                  key={`${name}-${i}`}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    mb: "0.5rem",
+                  }}
+                >
                   <Box sx={{ fontWeight: "bold", color: secondary }}>
                     {comment.username}:
                   </Box>

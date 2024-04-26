@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
+  TextField,
+  useMediaQuery,
   Typography,
   useTheme,
-  useMediaQuery,
-  TextField,
-  MenuItem,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
@@ -16,48 +15,16 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
-import Checkbox from "@mui/material/Checkbox"; // Import Checkbox component
-// import Country from "./country";
-import DatePicker from "./date";
-import Switches from "./switch";
 import axios from "axios";
-
-const jobTitles = [
-  "Software Engineer",
-  "Data Scientist",
-  "Product Manager",
-  "UI/UX Designer",
-  "Business Analyst",
-  "Marketing Manager",
-];
-const Schoolcollegeunivercity = [
-  "DAIICT",
-  "Nirma",
-  "GTU",
-  "PDPU",
-  "DDIT",
-  "AU",
-];
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
   email: yup.string().email("invalid email").required("required"),
   password: yup.string().required("required"),
-  // .matches(
-  //   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-  //   "Password must contain at least 6 characters, one uppercase letter, one lowercase letter, one number, and one special character"
-  // )
-  jobtitle: yup.string().required("required"),
-  Schoolcollegeunivercity: yup.string().required("required"),
-  profileImg: yup.string().required("required"),
-
-  CountryRegion: yup.string().required("required"),
-  Date: yup.string().required("required"),
-  age: yup
-    .boolean()
-    .oneOf([true], "You must be at least 17 years old")
-    .required("required"),
+  location: yup.string().required("required"),
+  occupation: yup.string().required("required"),
+  picture: yup.string().required("required"),
 });
 
 const loginSchema = yup.object().shape({
@@ -70,12 +37,9 @@ const initialValuesRegister = {
   lastName: "",
   email: "",
   password: "",
-  jobtitle: "",
-  Schoolcollegeunivercity: "",
-  profileImg: "",
-  CountryRegion: "",
-  Date: "",
-  age: false,
+  location: "",
+  occupation: "",
+  picture: "",
 };
 
 const initialValuesLogin = {
@@ -92,128 +56,102 @@ const Form = () => {
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
 
-  const register = async (values, onSubmitProps) => {
-    // this allows us to send form info with image
-    const formData = new FormData();
-    for (let value in values) {
-      formData.append(value, values[value]);
-    }
-    formData.append("picturePath", values.profileImg.name);
-    console.log(formData, "From the register function");
-    try {
-      const response = await axios.post(
-        "http://localhost:3001/auth/register",
-        formData
-      );
-      const savedUser = response.data;
+  // const register = async (values, onSubmitProps) => {
+  //   // this allows us to send form info with image
+  //   const formData = new FormData();
+  //   for (let value in values) {
+  //     console.log("first");
+  //     formData.append(value, values[value]);
+  //   }
+  //   console.log(values, "from register");
+  //   // formData.append("picturePath", values.picture.files[0]);
 
-      if (savedUser) {
-        onSubmitProps.resetForm();
-        setPageType("login");
+  //   const savedUserResponse = await axios.post(
+  //     "http://localhost:3001/auth/register",
+  //     {
+  //       email: values.email,
+  //       password: values.password,
+  //       firstName: values.firstName,
+  //       lastName: values.lastName,
+  //       country: values.country,
+  //       occupation: values.occupation,
+  //       profileImg: values.picture,
+  //     },
+  //     {
+  //       headers: "multipart/form-data",
+  //     }
+  //   );
+  //   // const savedUser = await savedUserResponse.json();
+  //   onSubmitProps.resetForm();
+
+  //   if (savedUserResponse) {
+  //     setPageType("login");
+  //   }
+  // };
+  const register = async (values, onSubmitProps) => {
+    try {
+      const formData = new FormData();
+      for (let key in values) {
+        // If the field is 'picture', append the file
+        if (key === "picture") {
+          formData.append("picture", values[key]);
+          console.log(key, values[key]);
+        } else {
+          console.log(key, values[key]);
+          formData.append(key, values[key]);
+        }
       }
+      console.log(formData, "FORM DATA FROM REGISTER");
+      const savedUserResponse = await axios.post(
+        "http://localhost:3001/auth/register",
+        {
+          email: values.email,
+          password: values.password,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          location: values.location,
+          occupation: values.occupation,
+          profileImg: values.picture,
+        }, // Pass formData directly as the request body
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Set content type to multipart/form-data
+          },
+        }
+      );
+
+      // Handle response accordingly
+      console.log(savedUserResponse.data); // Log the response
+      onSubmitProps.resetForm();
+      setPageType("login");
     } catch (error) {
-      console.error("Error saving user:", error);
+      console.error("Error registering user:", error);
+      // Handle error appropriately
     }
   };
 
-  // const savedUserResponse = await fetch(
-  //   "http://localhost:3001/auth/register",
-  //   {
-  //     method: "POST",
-  //     body: formData,
-  //   }
-  // );
-  // const savedUser = await savedUserResponse.json();
-  // onSubmitProps.resetForm();
-
-  // if (savedUser) {
-  //   setPageType("login");
-  // }
-  async function getFriends(user, accessToken) {
-    console.log(" message from getFriends function");
-    return await axios.get(
-      `http://localhost:3001/auth/connections/${user._id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-    // return await fetch(`http://localhost:3001/auth/connections/${user._id}`, {
-    //   method: "GET",
-    //   // credentials: "include",
-    //   // headers: {
-    //   //   Authorization: `Bearer ${accessToken}`,
-    //   // },
-    //   // body: JSON.stringify(values),
-    // })
-    //   .then((response) => {
-    //     if (!response.ok) {
-    //       throw new Error("network not ok");
-    //     }
-    //     return response;
-    //   })
-    //   .then((data) => {
-    //     console.log("jjdhjhjhjhjjj", data);
-    //     return data;
-    //   })
-    //   .catch((error) => {
-    //     console.log(error, "eromkk");
-    //   });
-  }
   const login = async (values, onSubmitProps) => {
-    console.log(values);
     const loggedInResponse = await axios.post(
       "http://localhost:3001/auth/login",
       { email: values.email, password: values.password }
     );
-    // const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(values),
-    // });
-    // console.log(loggedInResponse);
+    console.log(loggedInResponse.data);
     const loggedIn = loggedInResponse;
-    // const loggedIn = await loggedInResponse.json();
     onSubmitProps.resetForm();
-    console.log("shjahdjahdfajfhf", document.cookie.split(";"));
-    console.log(loggedIn.data.data.user);
     if (loggedIn) {
-      console.log(
-        "njhjdahj",
-        await getFriends(
-          loggedIn.data.data.user,
-          loggedIn.data.data.accessToken
-        )
-      );
-      // const data = await getFriends(
-      //   loggedIn.data.user,
-      //   loggedIn.data.accessToken
-      // );
       dispatch(
         setLogin({
           user: loggedIn.data.data.user,
           token: loggedIn.data.data.accessToken,
         })
       );
-
       navigate("/home");
-      // navigate("/temp");
     }
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    console.log("this message is from handleSubmit ", isLogin, isRegister);
     if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) {
-      // Submit the form only if the checkbox is checked
-      if (values.age) {
-        await register(values, onSubmitProps);
-      } else {
-        // Display an error message or perform any other action
-        console.log("You must be at least 17 years old to register.");
-      }
-    }
+    if (isRegister) await register(values, onSubmitProps);
   };
 
   return (
@@ -255,7 +193,6 @@ const Form = () => {
                   helperText={touched.firstName && errors.firstName}
                   sx={{ gridColumn: "span 2" }}
                 />
-
                 <TextField
                   label="Last Name"
                   onBlur={handleBlur}
@@ -266,43 +203,28 @@ const Form = () => {
                   helperText={touched.lastName && errors.lastName}
                   sx={{ gridColumn: "span 2" }}
                 />
-
-                <Country
-                  label="Country"
+                <TextField
+                  label="Location"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.Country}
-                  name="Country"
-                  error={Boolean(touched.Country) && Boolean(errors.Country)}
-                  helperText={touched.Country && errors.Country}
+                  value={values.location}
+                  name="location"
+                  error={Boolean(touched.location) && Boolean(errors.location)}
+                  helperText={touched.location && errors.location}
                   sx={{ gridColumn: "span 4" }}
                 />
-
                 <TextField
-                  select
-                  label="School/college/university"
-                  value={values.Schoolcollegeunivercity}
+                  label="Occupation"
+                  onBlur={handleBlur}
                   onChange={handleChange}
-                  name="Schoolcollegeunivercity"
+                  value={values.occupation}
+                  name="occupation"
                   error={
-                    Boolean(touched.Schoolcollegeunivercity) &&
-                    Boolean(errors.Schoolcollegeunivercity)
+                    Boolean(touched.occupation) && Boolean(errors.occupation)
                   }
-                  helperText={
-                    touched.Schoolcollegeunivercity &&
-                    errors.Schoolcollegeunivercity
-                  }
+                  helperText={touched.occupation && errors.occupation}
                   sx={{ gridColumn: "span 4" }}
-                >
-                  {Schoolcollegeunivercity.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                <DatePicker />
-
+                />
                 <Box
                   gridColumn="span 4"
                   border={`1px solid ${palette.neutral.medium}`}
@@ -313,7 +235,7 @@ const Form = () => {
                     acceptedFiles=".jpg,.jpeg,.png"
                     multiple={false}
                     onDrop={(acceptedFiles) =>
-                      setFieldValue("profileImg", acceptedFiles[0])
+                      setFieldValue("picture", acceptedFiles[0])
                     }
                   >
                     {({ getRootProps, getInputProps }) => (
@@ -324,11 +246,11 @@ const Form = () => {
                         sx={{ "&:hover": { cursor: "pointer" } }}
                       >
                         <input {...getInputProps()} />
-                        {!values.profileImg ? (
-                          <p>Add profileImg Here</p>
+                        {!values.picture ? (
+                          <p>Add Picture Here</p>
                         ) : (
                           <FlexBetween>
-                            <Typography>{values.profileImg.name}</Typography>
+                            <Typography>{values.picture.name}</Typography>
                             <EditOutlinedIcon />
                           </FlexBetween>
                         )}
@@ -336,24 +258,6 @@ const Form = () => {
                     )}
                   </Dropzone>
                 </Box>
-                <Switches />
-
-                <TextField
-                  select
-                  label="Most recent job title"
-                  value={values.jobtitle}
-                  onChange={handleChange}
-                  name="jobtitle"
-                  error={Boolean(touched.jobtitle) && Boolean(errors.jobtitle)}
-                  helperText={touched.jobtitle && errors.jobtitle}
-                  sx={{ gridColumn: "span 4" }}
-                >
-                  {jobTitles.map((title) => (
-                    <MenuItem key={title} value={title}>
-                      {title}
-                    </MenuItem>
-                  ))}
-                </TextField>
               </>
             )}
 
@@ -378,17 +282,6 @@ const Form = () => {
               helperText={touched.password && errors.password}
               sx={{ gridColumn: "span 4" }}
             />
-            {isRegister && (
-              <Box gridColumn="span 4">
-                <Checkbox
-                  checked={values.age}
-                  onChange={(e) => setFieldValue("age", e.target.checked)}
-                />
-                <Typography>
-                  I confirm that I am at least 17 years old
-                </Typography>
-              </Box>
-            )}
           </Box>
 
           {/* BUTTONS */}
@@ -416,7 +309,7 @@ const Form = () => {
                 color: palette.primary.main,
                 "&:hover": {
                   cursor: "pointer",
-                  color: palette.success.dark,
+                  color: palette.primary.light,
                 },
               }}
             >

@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
-import Form from "./form";
+import Form from "./form1";
 import Navbar1 from "scenes/navbar1";
 
 const LoginPage = () => {
