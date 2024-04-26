@@ -5,13 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { setFriends } from "state";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
+import axios from "axios";
 
 const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends);
+  const friends = useSelector((state) => state.user.following);
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -20,9 +21,10 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const medium = palette.neutral.medium;
 
   const isFriend = friends.find((friend) => friend._id === friendId);
+  console.log("isFriend bdhgwhd", friends);
 
   const patchFriend = async () => {
-    const response = await fetch(
+    const response = await axios.get(
       `http://localhost:3001/users/${_id}/${friendId}`,
       {
         method: "PATCH",

@@ -7,23 +7,26 @@ import { useSelector } from "react-redux";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
+import Temp from "Temp";
 
 function App() {
-    const mode = useSelector((state) => state.mode);
-    const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);  
+  const mode = useSelector((state) => state.mode);
+  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
-return (
+  return (
     <div className="app">
-    <BrowserRouter>
-    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
           <CssBaseline />
-    <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/profile/:userId" element={<ProfilePage />} />
-    </Routes>
-    </ThemeProvider>
-    </BrowserRouter>
-</div>);
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/temp" element={<Temp />} />
+          </Routes>
+        </ThemeProvider>
+      </BrowserRouter>
+    </div>
+  );
 }
 export default App;
