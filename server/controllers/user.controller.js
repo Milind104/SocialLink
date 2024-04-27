@@ -90,8 +90,9 @@ const acceptUserRequest = asyncHandler(async (req, res) => {
 
   friend1.connections.push(friend2._id);
   friend2.connections.push(friend1._id);
-  friend1.save(done);
-  friend2.save(done);
+  await friend1.save();
+  await friend2.save();
+  // friend1.save(done);
 
   return res
     .status(200)

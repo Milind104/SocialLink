@@ -12,7 +12,7 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const navigate = useNavigate();
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.following);
+  const friends = useSelector((state) => state.user.connections);
   // console.log(, "This is from Friendjsx.....");
   // console.log("friendid", friendId);
   // console.log("name", name);
