@@ -111,7 +111,17 @@ const PostWidget = ({
     }
   };
   // useEffect(async () => {
-  //   const imgUrl = await axios.get(``);
+  //   const response = await axios.get(
+  //     `http://localhost:3001/auth/image/${postUserId}`,
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  //   console.log("friend img", response.data.data);
+  //   return (userPicturePath = response.data.data);
   // }, [postUserId]);
   return (
     <WidgetWrapper m="2rem 0">

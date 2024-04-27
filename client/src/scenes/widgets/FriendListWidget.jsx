@@ -2,7 +2,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import axios from "axios";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFriends } from "state";
 
@@ -10,9 +10,12 @@ const FriendListWidget = ({ userId }) => {
   const dispatch = useDispatch();
   const { palette } = useTheme();
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends);
 
-  const getFriends = async () => {
+  // const friends = useSelector((state) => state.user.following);
+  const [friends, setFriends] = useState([]);
+  // console.log("first...........................", friends);
+  async function getFriends() {
+    console.log("get friends.............");
     try {
       const response = await axios.get(
         `http://localhost:3001/auth/connections/${userId}`,
@@ -20,20 +23,29 @@ const FriendListWidget = ({ userId }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      //  console.log(response.data, "Response from get Friends.......");
-      if (!response.ok) {
+      console.log(response.data, "Response from get Friends.......");
+      if (!response.data.success) {
         throw new Error("Failed to fetch friends");
       }
+      //const fetchedFriends = response.data.data;
       const data = response.data.data;
+      console.log(data);
+      setFriends(data);
       dispatch(setFriends({ friends: response.data.data }));
     } catch (error) {
       console.error("Error fetching friends:", error.message);
     }
-  };
-
+  }
+  console.log("before useeffect...................");
   useEffect(() => {
     getFriends();
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+  console.log("Number of friends:............", friends);
+  // useEffect(() => {
+  //   const friends = useSelector((state) => state.user.following); // Define friends here
+  //   console.log("Number of friends:", friends.length); // Log the length
+  //   getFriends();
+  // }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <WidgetWrapper>

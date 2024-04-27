@@ -126,7 +126,6 @@ const MyPostWidget = ({ profileImg }) => {
           </Dropzone>
         </Box>
       )}
-
       <Divider sx={{ margin: "1.25rem 0" }} />
 
       <FlexBetween>
