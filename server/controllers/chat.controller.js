@@ -1,118 +1,213 @@
-import Chat from "../models/chat.model.js";
-import Message from "../models/message.model.js"
-import Connection from "../models/connection.model.js";
-import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/ApiResponse.js";
-import asyncHandler from "../utils/asyncHandler.js";
-import uploadOnCloudinary from "../utils/cloudinary.js";
+import Chat from '../models/chat.model.js';
+import User from "../models/user.model.js"
 
-/*chat Actions*/
+const accessChat = async(req,res)=>{
+    const {userId} = req.body;
 
-// create chat
-const createChat = asyncHandler( async(req, res) =>{
-    const id = req.params.id;
-    const loggedInUser = req.user._id;
-    const friendId = req.params.friendId;
-
-    console.log(id, loggedInUser.toString(), friendId);
-    if(id !== loggedInUser.toString()){
-        throw new ApiError(401, "Authenticate first");
+    if(!userId){
+        console.log("UserId param not sent with request");
     }
-
-    // check if both are friends or not 
-    const isFriends = await Connection.findOne({
-        $or: [
-            {
-                $and: [
-                    {sender: id},
-                    {receiver: friendId}
-                ]
-            },
-            {
-                $and: [
-                    {sender: friendId},
-                    {receiver: id}
-                ]
-            }
+    var isChat = await Chat.find({
+        isGroupChat: false, 
+        $and:[
+            {users : {$elemMatch:{$eq: req.user._id}}},
+            {users: {$elemMatch : {$eq: userId}}},
         ]
-    });
-    
-    // console.log(isFriends);
+    }).populate("users","-password").populate("latestMessage");
 
-    if(!isFriends){
-        throw new ApiError(404, "Send connection request");
-    }
-
-    const chat = await Chat.create({
-        members: [friendId, id]
+    isChat =  await User.populate(isChat,{
+        path : "latestMessage.sender",
+        select : "name pic email",
     })
 
-    if(!chat){
-        throw new ApiError(500, "Something went wrong while creating chat");
+    if(isChat.length > 0){
+        res.send(isChat[0]);
     }
+    else{
+        var chatData = {
+            ChatName: "sender",
+            isGroupChat: false,
+            users:[req.user._id, userId]
+        };
 
-    return res.status(200)
-    .json(new ApiResponse(200, chat, "Chat is created successfully"));
-})
+        try {
+            const created = await Chat.create(chatData);
 
-// send message
-const sendMessage = asyncHandler( async(req, res) =>{
-    const id = req.params.id;
-    const loggedInUser = req.user._id;
-    const chatId = req.params.chatId;
-
-    const {text} = req.body; 
-    if(id !== loggedInUser.toString()){
-        throw new ApiError(401, "Authenticate first");
+            const FullChat = await Chat.findOne({_id:created._id}).populate("users","-password");
+            res.status(200).send(FullChat);
+        } catch (error) {
+            res.status(400);
+        }
     }
-
-    // find chat with given id
-    const chat = await Chat.findById(chatId);
-    if(!chat){
-        throw new ApiError(404, "Chat is not created!!!!");
-    }
-
-    const mediaLocalPath = req.files?.media[0]?.path;
-
-    if( !mediaLocalPath && !text ){
-        throw new ApiError(404, "Can't send empty message");
-    }
-    const media = (mediaLocalPath !== "")?await uploadOnCloudinary(mediaLocalPath):"";
-
-    console.log(media, "............");
-
-    console.log(id, chatId, text,)
-    const message = await Message.create({
-        sender: id,
-        chatId,
-        text,
-        content: media.url
-    });
-
-    console.log(message);
-
-    if(!message){
-        throw new ApiError(500, "Something went wrong while creating message");
-    }
-
-    return res.status(200)
-    .json(new ApiResponse(200, message, "Message sent Successfully"));
-});
-
-const getAllmessges = asyncHandler( async(req, res) =>{
-    const { chatId } = req.params.chatId;
-
-    const messages = await Message.findById(chatId);
-
-    if(!messages){
-        throw new ApiError(404, "Messages are not fetched successfully...");
-    }
-
-    return res.status(200).json(new ApiResponse(200, messages, "Messages fetched!!!"));
-});
-
-export {
-    createChat,
-    sendMessage,
-    getAllmessges
 }
+const fetchChats = async (req, res) => {
+    try {
+      Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password")
+        .populate("latestMessage")
+        .sort({ updatedAt: -1 })
+        .then(async (results) => {
+          results = await User.populate(results, {
+            path: "latestMessage.sender",
+            select: "name pic email",
+          });
+          res.status(200).send(results);
+        });
+    } catch (error) {
+      res.status(400);
+    }
+};
+
+const createGroupChat = async (req, res) => {
+    if (!req.body.users || !req.body.name) {
+      return res.status(400).send({ message: "Please Fill all the feilds" });
+    }
+  
+    var users = JSON.parse(req.body.users);
+  
+    if (users.length < 2) {
+      return res
+        .status(400)
+        .send("More than 2 users are required to form a group chat");
+    }
+  
+    users.push(req.user);
+  
+    try {
+      const groupChat = await Chat.create({
+        chatName: req.body.name,
+        users: users,
+        isGroupChat: true,
+        groupAdmin: req.user,
+      });
+  
+      const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+  
+      res.status(200).json(fullGroupChat);
+    } catch (error) {
+      res.status(400);
+      throw new Error(error.message);
+    }
+};
+  const renameGroup = async (req, res) => {
+    const { chatId, chatName } = req.body;
+  
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        chatName: chatName,
+      },
+      {
+        new: true,
+      }
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+  
+    if (!updatedChat) {
+      res.status(404);
+    } else {
+      res.json(updatedChat);
+    }
+};
+const removeFromGroup = async (req, res) => {
+    const { chatId, userId } = req.body;
+  
+    // check if the requester is admin
+  
+    const removed = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $pull: { users: userId },
+      },
+      {
+        new: true,
+      }
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+  
+    if (!removed) {
+      res.status(404);
+    } else {
+      res.json(removed);
+    }
+  };
+  
+const addToGroup = async (req, res) => {
+    const { chatId, userId } = req.body;
+  
+    // check if the requester is admin
+  
+    const added = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $push: { users: userId },
+      },
+      {
+        new: true,
+      }
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+  
+    if (!added) {
+      res.status(404);
+    //   throw new Error("Chat Not Found");
+    } else {
+      res.json(added);
+    }
+};
+export {accessChat,
+    fetchChats,
+    createGroupChat,
+    renameGroup,
+    addToGroup,
+    removeFromGroup};
+
+
+
+
+// const ChatModel = require('../Models/chatModel');
+
+// const createChat = async(req,res)=>{
+//     const newChat = new ChatModel({
+//         members : [req.body.senderId, req.body.receiverId],
+//     });
+    
+//     try {
+//         const result = await newChat.save();
+//         res.status(200).json(result);
+//     } catch (error) {
+//         res.status(500).json("error");
+//     }
+// }
+
+// const userChats = async(req,res)=>{
+//     try {
+//         const chat = await ChatModel.find({
+//             members : {$in : [req.params.userId]}
+//         })
+//         res.status(200).json(chat);
+
+//     } catch (error) {
+//         res.status(500).json("error");
+//     }
+// }
+
+// const findChat = async(req,res)=>{
+//     try {
+//         const chat = await ChatModel.findOne({
+//             members : {$all: [req.params.firstId, req.params.secondId]}
+//         });
+//         res.status(200).json(chat);
+//         m
+//     } catch (error) {
+//         res.status(500).json("Error");
+//     }
+// }
+
+// module.exports = {findChat,createChat,userChats};
