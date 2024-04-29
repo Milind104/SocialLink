@@ -11,36 +11,36 @@ const FriendListWidget = ({ userId }) => {
   const { palette } = useTheme();
   const token = useSelector((state) => state.token);
 
-  // const friends = useSelector((state) => state.user.following);
-  const [friends, setFriends] = useState([]);
-  // console.log("first...........................", friends);
-  async function getFriends() {
-    console.log("get friends.............");
+  const friends = useSelector((state) => state.user.connections);
+  // const [friends, setFriends] = useState([]);
+  console.log("first...........................", friends, userId);
+  const getFriends = async () => {
     try {
+      console.log("get friends.............");
       const response = await axios.get(
         `http://localhost:3001/auth/connections/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(response.data, "Response from get Friends.......");
-      if (!response.data.success) {
+      // console.log(response.data.data, "Response from get Friends.......");
+      if (!response.data.data) {
         throw new Error("Failed to fetch friends");
       }
       //const fetchedFriends = response.data.data;
       const data = response.data.data;
-      console.log(data);
-      setFriends(data);
-      dispatch(setFriends({ friends: response.data.data }));
+      console.log(data, "This is answer from the friendlist");
+      // setFriends(data);
+      dispatch(setFriends({ friends: data }));
     } catch (error) {
       console.error("Error fetching friends:", error.message);
     }
-  }
-  console.log("before useeffect...................");
+  };
+  // console.log("before useeffect...................");
   useEffect(() => {
     getFriends();
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
-  console.log("Number of friends:............", friends);
+  // console.log("Number of friends:............", friends);
   // useEffect(() => {
   //   const friends = useSelector((state) => state.user.following); // Define friends here
   //   console.log("Number of friends:", friends.length); // Log the length
@@ -55,20 +55,24 @@ const FriendListWidget = ({ userId }) => {
         fontWeight="500"
         sx={{ mb: "1.5rem" }}
       >
-        Friend List
+        {friends.length}
       </Typography>
 
       <Box display="flex" flexDirection="column" gap="1.5rem">
         {friends && friends.length > 0 ? (
-          friends.map((friend) => (
-            <Friend
-              key={friend._id}
-              friendId={friend._id}
-              name={`${friend.firstName} ${friend.lastName}`}
-              subtitle={friend.occupation}
-              userPicturePath={friend.picturePath}
-            />
-          ))
+          // { friends }
+          friends.map(
+            (friend) =>
+              friend && (
+                <Friend
+                  key={friend._id}
+                  friendId={friend._id}
+                  name={`${friend.firstName} ${friend.lastName}`}
+                  subtitle={friend.occupation}
+                  userPicturePath={friend.profileImg}
+                />
+              )
+          )
         ) : (
           <Typography>No friends to display</Typography>
         )}

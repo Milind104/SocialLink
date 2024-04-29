@@ -13,7 +13,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   const [first, setfirst] = useState(true);
   const getPosts = async () => {
     try {
-      console.log("getposts function runnig....");
+      // console.log("getposts function runnig....");
       const response = await axios.get(`http://localhost:3001/posts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -36,7 +36,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
 
   const getUserPosts = async () => {
     try {
-      console.log("get user post");
+      // console.log("get user post");
       const response = await axios.get(
         `http://localhost:3001/posts/${userId}/posts`,
         {
@@ -63,15 +63,15 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   //   const data = await response.json();
   //   dispatch(setPosts({ posts: data }));
   // };
-  console.log("hello this is from before postwidgete.....");
+  // console.log("hello this is from before postwidgete.....");
   useEffect(() => {
-    console.log("hello this is from postsWidgets .....");
+    // console.log("hello this is from postsWidgets .....");
     if (isProfile) {
       getUserPosts();
     } else {
       getPosts();
     }
-  }, [userId, isProfile]); // Updated the dependencies
+  }, [isProfile, userId]); // Updated the dependencies
 
   const [editPostId, setEditPostId] = useState(null);
 
