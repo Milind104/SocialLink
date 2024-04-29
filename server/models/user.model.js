@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema(
     },
     profileImg: {
       type: String, // cloudinary img url
-      default: "xyz", // default img url
+      default: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg", // default img url
     },
     coverImg: {
       type: String, // cloudinary img url

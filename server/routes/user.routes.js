@@ -13,6 +13,7 @@ import {
   getAllConnections,
   removeConnection,
   getImageUrl,
+  allUsers
 } from "../controllers/user.controller.js";
 import { createChat, sendMessage } from "../controllers/chat.controller.js";
 import verifyJWT from "../middleware/auth.middleware.js";
@@ -64,6 +65,8 @@ Router.route("/connections/:userId").get(getAllConnections);
 // remove connection
 Router.route("/:id/:connectionId").delete(verifyJWT, removeConnection);
 
+// find user by name
+Router.route("/").get(verifyJWT, allUsers);
 /*Message routes*/
 
 // create chat
