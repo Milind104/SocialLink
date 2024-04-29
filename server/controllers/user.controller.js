@@ -100,7 +100,7 @@ const acceptUserRequest = asyncHandler(async (req, res) => {
 });
 
 const getAllConnections = asyncHandler(async (req, res) => {
-  const userId = req.params.userId;
+  const id = req.params.userId;
   // const loggedInUser = req.user._id;
 
   // console.log(userId, loggedInUser.toString( ));
@@ -109,24 +109,35 @@ const getAllConnections = asyncHandler(async (req, res) => {
   // }
 
   // const connections = await Connection.find({ _id: userId, status: "Accepted"});
-  const connections = await Connection.find({
-    $and: [
-      {
-        $or: [{ sender: userId }, { receiver: userId }],
-      },
-      {
-        status: "Accepted",
-      },
-    ],
-  });
+  // const connections = await Connection.find({
+  //   $and: [
+  //     {
+  //       $or: [{ sender: userId }, { receiver: userId }],
+  //     },
+  //     {
+  //       status: "Accepted",
+  //     },
+  //   ],
+  // });
+  const user = await User.findById(id);
 
-  if (!connections) {
+  const friends = await Promise.all(
+    user.connections.map((id) => User.findById(id))
+  );
+  const formattedFriends = friends.map(
+    ({ _id, firstName, lastName, occupation, location, profileImg }) => {
+      return { _id, firstName, lastName, occupation, location, profileImg };
+    }
+  );
+  // res.status(200).json(formattedFriends);
+  console.log(friends);
+  if (!friends) {
     throw new ApiError(500, "Something went wrong while getting connections");
   }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, connections, "Connection list fetched"));
+    .json(new ApiResponse(200, friends, "Connection list fetched"));
 });
 
 const removeConnection = asyncHandler(async (req, res) => {

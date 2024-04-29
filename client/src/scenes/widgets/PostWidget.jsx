@@ -41,7 +41,19 @@ const PostWidget = ({
   const main = palette.neutral.main;
   const primary = palette.primary.main;
   const secondary = palette.secondary.main;
-
+  console.log(
+    "post widget ... ",
+    postId,
+    postUserId,
+    name,
+    description,
+    location,
+    picturePath,
+    userPicturePath,
+    likes,
+    comments,
+    userId
+  );
   // const patchLike = async () => {
   //   const response = await axios.patch(`http://localhost:3001/posts/${postId}/like`, {
 
@@ -129,7 +141,7 @@ const PostWidget = ({
         friendId={postUserId}
         name={name}
         subtitle={location}
-        userPicturePath={userPicturePath}
+        userPicturePath={picturePath}
       />
       <Typography color={main} sx={{ mt: "1rem" }}>
         {description}

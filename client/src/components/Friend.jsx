@@ -13,11 +13,11 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
   const friends = useSelector((state) => state.user.connections);
-  // console.log(, "This is from Friendjsx.....");
-  // console.log("friendid", friendId);
-  // console.log("name", name);
-  // console.log("subtitle", subtitle);
-  // console.log("userpicture", userPicturePath);
+  console.log("This is from Friendjsx.....");
+  console.log("friendid", friendId);
+  console.log("name", name);
+  console.log("subtitle", subtitle);
+  console.log("userpicture", userPicturePath);
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
   const primaryDark = palette.primary.dark;
@@ -29,7 +29,7 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
 
   const patchFriend = async () => {
     const response = await axios.get(
-      `http://localhost:3001/auth/image/${friendId}`,
+      `http://localhost:3001/auth/connections/${_id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -37,28 +37,28 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
         },
       }
     );
-    // console.log("friend img", response.data.data);
+    console.log("friend img", response.data.data);
     // const data = await response.json();
     dispatch(setFriends({ friends: response.data.data }));
   };
   // console.log("userPicturePath:", userPicturePath);
-  const ans = async () => {
-    const response = await axios.get(
-      `http://localhost:3001/auth/image/${friendId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    // console.log("friend img", response.data.data);
-    userPicturePath = response.data.data;
-    // console.log(
-    //   "this is your ans from .............................",
-    //   userPicturePath
-    // );
-  };
+  // const ans = async () => {
+  //   const response = await axios.get(
+  //     `http://localhost:3001/auth/image/${friendId}`,
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  //   // console.log("friend img", response.data.data);
+  //   // userPicturePath = response.data.data;
+  //   // console.log(
+  //   //   "this is your ans from .............................",
+  //   //   userPicturePath
+  //   // );
+  // };
   return (
     <FlexBetween>
       <FlexBetween gap="1rem">
