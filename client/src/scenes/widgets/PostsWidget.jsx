@@ -5,7 +5,7 @@ import PostWidget from "./PostWidget";
 import EditPostWidget from "./EditPostWidget";
 import axios from "axios";
 
-const PostsWidget = ({ userId, isProfile = true }) => {
+const PostsWidget = ({ userId, isProfile = false }) => {
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.posts);
   const token = useSelector((state) => state.token);
@@ -14,12 +14,9 @@ const PostsWidget = ({ userId, isProfile = true }) => {
   const getPosts = async () => {
     try {
       console.log("getposts function runnig....");
-      const response = await axios.get(
-        `http://localhost:3001/posts/${userId}/posts`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`http://localhost:3001/posts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       dispatch(setPosts({ posts: response.data.data }));
       setfirst(!first);
     } catch (error) {

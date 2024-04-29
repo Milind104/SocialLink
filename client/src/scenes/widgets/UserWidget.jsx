@@ -60,7 +60,7 @@ const UserWidget = ({ userId, profileImg }) => {
     occupation,
     viewedProfile,
     impressions,
-    following,
+    connections,
   } = user;
 
   return (
@@ -87,7 +87,7 @@ const UserWidget = ({ userId, profileImg }) => {
             >
               {firstName} {lastName}
             </Typography>
-            <Typography color={medium}>{following.length} friends</Typography>
+            <Typography color={medium}>{connections.length} friends</Typography>
           </Box>
         </FlexBetween>
         <ManageAccountsOutlined />

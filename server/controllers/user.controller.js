@@ -81,6 +81,19 @@ const acceptUserRequest = asyncHandler(async (req, res) => {
     );
   }
 
+  const friend1 = await User.findById(accept.receiver);
+  const friend2 = await User.findById(accept.sender);
+
+  if (!friend1 || !friend2) {
+    throw new ApiError(404, "User is not found may be deleted account");
+  }
+
+  friend1.connections.push(friend2._id);
+  friend2.connections.push(friend1._id);
+  await friend1.save();
+  await friend2.save();
+  // friend1.save(done);
+
   return res
     .status(200)
     .json(new ApiResponse(200, accept, "Connection accepted successfully"));
