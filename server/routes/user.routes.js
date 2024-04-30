@@ -15,7 +15,6 @@ import {
   getImageUrl,
   allUsers
 } from "../controllers/user.controller.js";
-import { createChat, sendMessage } from "../controllers/chat.controller.js";
 import verifyJWT from "../middleware/auth.middleware.js";
 
 const Router = express();
@@ -69,19 +68,6 @@ Router.route("/:id/:connectionId").delete(verifyJWT, removeConnection);
 Router.route("/").get(verifyJWT, allUsers);
 /*Message routes*/
 
-// create chat
-Router.route("/:id/:friendId").post(verifyJWT, createChat);
 
-// send message
-Router.route("/chat/:id/:chatId").post(
-  verifyJWT,
-  upload.fields([
-    {
-      name: "media",
-      mxCount: 1,
-    },
-  ]),
-  sendMessage
-);
 
 export default Router;
