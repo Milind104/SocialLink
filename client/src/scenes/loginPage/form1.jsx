@@ -122,6 +122,7 @@ const Form = () => {
 
       // Handle response accordingly
       console.log(savedUserResponse.data); // Log the response
+      localStorage.setItem("userInfo", JSON.stringify(savedUserResponse.data));
       onSubmitProps.resetForm();
       setPageType("login");
     } catch (error) {
@@ -137,6 +138,7 @@ const Form = () => {
     );
     console.log(loggedInResponse.data);
     const loggedIn = loggedInResponse;
+    localStorage.setItem("userInfo", JSON.stringify(loggedIn.data));
     onSubmitProps.resetForm();
     if (loggedIn) {
       dispatch(
