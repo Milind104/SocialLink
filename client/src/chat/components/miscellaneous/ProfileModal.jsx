@@ -2,7 +2,7 @@ import React from "react";
 import { IconButton, Modal, Paper, Typography } from "@mui/material";
 import { Close, Visibility } from "@mui/icons-material";
 
-const ProfileModal = ({ user, children }) => {
+const ProfileModal = ({ children, user }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleOpen = () => {

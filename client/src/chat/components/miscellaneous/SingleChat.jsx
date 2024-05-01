@@ -19,7 +19,7 @@ import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 import { encryptWithAES } from "../../config/Secure";
 
-const END_POINT = "http://localhost:4000";
+const END_POINT = "http://localhost:3001/";
 let socket;
 let selectedChatCompare;
 
@@ -33,6 +33,7 @@ const SingleChat = () => {
 
   useEffect(() => {
     socket = io(END_POINT);
+    console.log(user.accessToken, "single chat page ....");
     socket.emit("setup", user.user);
     socket.on("connected", () => {
       setSocketConnected(true);
@@ -45,23 +46,17 @@ const SingleChat = () => {
       setLoading(true);
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/message/${selectedChat._id}`,
+        `http://localhost:3001/message/${selectedChat._id}`,
         config
       );
       setMessages(data);
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
-      //  toast({
-      //    title: "Error Occurred",
-      //    status: "warning",
-      //    duration: 5000,
-      //    isClosable: true,
-      //    position: "bottom",
-      //  });
+      console.log(error);
     }
     setLoading(false);
   };
@@ -72,12 +67,12 @@ const SingleChat = () => {
         const config = {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${user.token}`,
+            Authorization: `Bearer ${user.accessToken}`,
           },
         };
         setNewMessage("");
         const { data } = await axios.post(
-          "http://localhost:4000/message",
+          "http://localhost:3001/message",
           {
             content: encryptWithAES(newMessage),
             chatId: selectedChat._id,

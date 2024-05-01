@@ -16,6 +16,21 @@ const connectToUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Operation is not possible");
   }
 
+  const connections = await Connection.find({
+    $or: [
+      {
+        $and: [{ sender: receiver }, { receiver: sender }],
+      },
+      {
+        $and: [{ sender }, { receiver }],
+      },
+    ],
+  });
+  if (connections) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, connections, "Already sent request"));
+  }
   const response = await Connection.create({
     receiver,
     sender,
@@ -151,26 +166,29 @@ const removeConnection = asyncHandler(async (req, res) => {
   }
 
   const resp = await Connection.findByIdAndDelete(connectionId);
-  // const resp = await Connection.findOneAndDelete({
-  //     $or: [
-  //         {
-  //             $and: [
-  //                 {sender: id},
-  //                 {receiver: userId}
-  //             ]
-  //         },
-  //         {    $and: [
-  //                 {sender: userId},
-  //                 {receiver: id},
-  //             ]
-  //         }
-  //     ]
-  // })
+  console.log(resp);
+  const friend1 = await User.findById(resp.sender);
+  const friend2 = await User.findById(resp.receiver);
 
+  friend1.connections = friend1.connections.filter(
+    (connectionId) => connectionId.toString() !== friend2._id.toString()
+  );
+
+  // Remove friend1's ID from friend2's connections
+  friend2.connections = friend2.connections.filter(
+    (connectionId) => connectionId.toString() !== friend1._id.toString()
+  );
+
+  // Save the updated friends to the database
+  await friend1.save();
+  await friend2.save();
   if (!resp) {
     throw new ApiError(500, "Something went wrong while working with database");
   }
-
+  await User.update(
+    { _id: id },
+    { $pull: { "contact.phone": { number: "+1786543589455" } } }
+  );
   return res
     .status(200)
     .json(new ApiResponse(200, resp, "Connection removed successfully"));
@@ -228,5 +246,5 @@ export {
   getAllConnections,
   removeConnection,
   getImageUrl,
-  allUsers
+  allUsers,
 };

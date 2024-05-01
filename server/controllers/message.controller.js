@@ -1,6 +1,6 @@
-import Message from "../Models/messageModel";
-import User from "../Models/userModel";
-import Chat from "../Models/chatModel";
+import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
+import Chat from "../models/chat.model.js";
 
 const allMessages = async (req, res) => {
   try {
@@ -12,7 +12,6 @@ const allMessages = async (req, res) => {
     res.status(400);
   }
 };
-
 
 const sendMessage = async (req, res) => {
   const { content, chatId } = req.body;
@@ -29,7 +28,7 @@ const sendMessage = async (req, res) => {
   // console.log("message ", content);
   try {
     var message = await Message.create(newMessage);
-    
+
     message = await message.populate("sender", "name pic");
     message = await message.populate("chat");
     message = await User.populate(message, {
@@ -44,36 +43,7 @@ const sendMessage = async (req, res) => {
   }
 };
 
-export { allMessages, 
-        sendMessage };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export { allMessages, sendMessage };
 
 // const addMessage = async(req,res)=>{
 //     const {chatId, senderId, text} = req.body;

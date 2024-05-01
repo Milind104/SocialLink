@@ -1,37 +1,13 @@
-const express = require('express');
-const protect = require('../middleware/auth');
-const { sendMessage, allMessages} = require('../controller/messageController');
+import express from "express";
+import verifyJWT from "../middleware/auth.middleware.js";
+import { sendMessage, allMessages } from "../controllers/message.controller.js";
 const Router = express.Router();
 
-Router.route('/')
-.post(protect,sendMessage);
+Router.route("/").post(verifyJWT, sendMessage);
 
-Router.route('/:chatId')
-.get(protect, allMessages);
-module.exports = Router;
+Router.route("/:chatId").get(verifyJWT, allMessages);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default Router;
 
 // Router.route('/')
 // .post(addMessage);

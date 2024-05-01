@@ -10,6 +10,7 @@ import { themeSettings } from "./theme";
 import Temp from "Temp";
 import AppState from "context/AppState";
 import ChatPage from "chat/Pages/ChatPage";
+import SearchBox from "chat/components/miscellaneous/SearchBox";
 function App() {
   const mode = useSelector((state) => state.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
@@ -26,6 +27,7 @@ function App() {
               <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="/temp" element={<Temp />} />
               <Route path="/chats" element={<ChatPage />} />
+              <Route path="/search" element={<SearchBox />} />
             </Routes>
           </ThemeProvider>
         </AppState>

@@ -122,7 +122,10 @@ const Form = () => {
 
       // Handle response accordingly
       console.log(savedUserResponse.data); // Log the response
-      localStorage.setItem("userInfo", JSON.stringify(savedUserResponse.data));
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify(savedUserResponse.data.data)
+      );
       onSubmitProps.resetForm();
       setPageType("login");
     } catch (error) {
@@ -136,9 +139,10 @@ const Form = () => {
       "http://localhost:3001/auth/login",
       { email: values.email, password: values.password }
     );
-    console.log(loggedInResponse.data);
+    // console.log(loggedInResponse.data);
     const loggedIn = loggedInResponse;
-    localStorage.setItem("userInfo", JSON.stringify(loggedIn.data));
+    console.log(loggedIn.data.data, "form 1 jsx");
+    localStorage.setItem("userInfo", JSON.stringify(loggedIn.data.data));
     onSubmitProps.resetForm();
     if (loggedIn) {
       dispatch(

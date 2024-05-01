@@ -4,13 +4,15 @@ import { setPosts } from "state";
 import PostWidget from "./PostWidget";
 import EditPostWidget from "./EditPostWidget";
 import axios from "axios";
+import { useField } from "formik";
 
 const PostsWidget = ({ userId, isProfile = false }) => {
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.posts);
   const token = useSelector((state) => state.token);
+  // const [posts, setposts] = useState([]);
+  const [first, setfirst] = useState(false);
   console.log("post before .....", posts, token);
-  const [first, setfirst] = useState(true);
   const getPosts = async () => {
     try {
       // console.log("getposts function runnig....");
@@ -18,6 +20,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       dispatch(setPosts({ posts: response.data.data }));
+      // setposts(response.data.data);
       setfirst(!first);
     } catch (error) {
       // Handle errors here
@@ -44,6 +47,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
         }
       );
       console.log("after get post", response.data.data);
+      // setposts(response.data.data);
       dispatch(setPosts({ posts: response.data.data }));
       setfirst(!first);
     } catch (error) {

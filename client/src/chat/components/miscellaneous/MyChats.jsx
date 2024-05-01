@@ -23,10 +23,10 @@ const MyChats = () => {
     try {
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
-      const { data } = await axios.get("http://localhost:4000/chat", config);
+      const { data } = await axios.get("http://localhost:3001/chat", config);
       setChats(data);
     } catch (error) {
       console.error("Error fetching chats:", error);

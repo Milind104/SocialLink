@@ -52,12 +52,12 @@ const UpdateGroupChatModal = () => {
       setRenameLoading(true);
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
 
       const { data } = await axios.put(
-        "http://localhost:4000/chat/rename",
+        "http://localhost:3001/chat/rename",
         {
           chatId: selectedChat._id,
           chatName: groupChatName,

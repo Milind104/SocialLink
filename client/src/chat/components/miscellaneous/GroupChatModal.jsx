@@ -46,11 +46,11 @@ const GroupChatModal = ({ children }) => {
       setLoading(true);
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/auth?search=${search}`,
+        `http://localhost:3001/auth?search=${search}`,
         config
       );
       setLoading(false);
@@ -81,12 +81,12 @@ const GroupChatModal = ({ children }) => {
     try {
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
       const users = JSON.stringify(selectedUsers.map((u) => u._id));
       const { data } = await axios.post(
-        `http://localhost:4000/chat/group`,
+        `http://localhost:3001/chat/group`,
         { name: groupChatName, users },
         config
       );

@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import app from "./app.js";
 import Chat from "./models/chat.model.js";
-import {Server} from 'socket.io';
+import { Server } from "socket.io";
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,21 +22,23 @@ mongoose
   })
   .then(() => {
     console.log("Database is Connected Successfully!!!!");
-    const server = app.listen(PORT, () => console.log(`Server Port: ${PORT}........`));
+    const server = app.listen(PORT, () =>
+      console.log(`Server Port: ${PORT}........`)
+    );
 
     const io = new Server(server, {
       pingTimeOut: 600000,
       cors: {
-        origin: "*",
+        origin: "http://localhost:3000",
       },
     });
 
     io.on("connection", (socket) => {
-      // console.log("Conncted to socket.io");
+      // console.log("Conncted to socket.io", socket);
 
       // set up (user open chat app )
       socket.on("setup", (userData) => {
-        // console.log(userData);
+        console.log(userData, "This is what we got");
         socket.join(userData._id);
         socket.emit("Connected");
       });

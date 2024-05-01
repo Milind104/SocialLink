@@ -17,6 +17,7 @@ import {
   Typography,
   CircularProgress,
   Accordion,
+  AccordionDetails,
 } from "@mui/material";
 import { Abc, Bell, ChevronDown } from "@mui/icons-material";
 import axios from "axios";
@@ -25,6 +26,9 @@ import ProfileModal from "./ProfileModal";
 import ChatLoading from "./ChatLoading";
 import UserListItem from "./UserListItem";
 import { useNavigate } from "react-router-dom";
+import { TextField } from "@mui/material";
+import { InputAdornment } from "@mui/material";
+import SearchBox from "./SearchBox";
 
 const SideDrawer = () => {
   const navigate = useNavigate();
@@ -34,7 +38,7 @@ const SideDrawer = () => {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  console.log(user, setselectedChat, Chats, setChats, "hello from sideDrawer");
   const logoutHandler = () => {
     localStorage.removeItem("userInfo");
     navigate("/");
@@ -50,13 +54,14 @@ const SideDrawer = () => {
       setLoading(true);
       const config = {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/auth?search=${search}`,
+        `http://localhost:3001/auth?search=${search}`,
         config
       );
+      console.log(data, "handle search functionality");
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -70,7 +75,7 @@ const SideDrawer = () => {
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user.accessToken}`,
         },
       };
       const { data } = await axios.post(
@@ -92,6 +97,7 @@ const SideDrawer = () => {
 
   return (
     <>
+      <SearchBox />
       <Box
         display="flex"
         justifyContent="space-between"
@@ -100,20 +106,35 @@ const SideDrawer = () => {
         p="5px 10px"
         borderWidth="5px"
       >
-        <Tooltip title="Search Users to Chat" arrow placement="bottom-end">
+        {/* <Tooltip title="Search Users to Chat" arrow placement="bottom-end">
           <Button variant="text" onClick={() => setIsOpen(true)}>
             <i className="fas fa-search"></i>
             <Typography display={{ base: "none", md: "flex" }} px="4px">
               Search User
             </Typography>
           </Button>
-        </Tooltip>
+        </Tooltip> */}
+
+        {/* <TextField
+          id="search"
+          label="Search User"
+          variant="outlined"
+          size="small"
+          fullWidth
+          onChange={handleSearch}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <i className="fas fa-search"></i>
+              </InputAdornment>
+            ),
+          }} 
+        />
+          */}
         <Typography fontSize="2xl">Social Link</Typography>
         <div>
-          <Menu>
-            <MenuItem>
-              <Abc fontSize="large" />
-            </MenuItem>
+          <Menu open={true}>
+            <MenuItem>{/* <Accordion fontSize="large" /> */}</MenuItem>
           </Menu>
           <Menu>
             <MenuItem>
