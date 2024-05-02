@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Typography,
@@ -14,35 +14,17 @@ import { useContext } from "react";
 import AppContext from "context/AppContext";
 import UserImage from "components/UserImage";
 import axios from "axios";
-import { useState } from "react";
 import Navbar from "scenes/navbar";
 
 const Profile = () => {
-  const { friend, setFriend, user } = useContext(AppContext);
-  console.log(user.user._id, user.accessToken);
+  const { friend, user } = useContext(AppContext);
   const [status, setStatus] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function request() {
+  async function sendFriendRequest() {
+    setIsLoading(true);
     try {
-      const resp = await axios.post(
-        `http://localhost:3001/auth/request/${friend._id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-        }
-      );
-      console.log("hello", resp.data.data);
-      setStatus(resp.data.data.status || "send");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const addFriend = async () => {
-    try {
-      const resp = await axios.post(
+      const response = await axios.post(
         `http://localhost:3001/auth/sendreq/${friend._id}`,
         {},
         {
@@ -51,16 +33,37 @@ const Profile = () => {
           },
         }
       );
-      console.log(resp.data.data);
-      setStatus(resp.data.data.status);
+      setStatus(response.data.data.status);
     } catch (error) {
-      console.log(error);
+      console.error("Error sending friend request:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
+
+  async function acceptFriendRequest() {
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/auth/request/${friend._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      );
+      setStatus(response.data.data.status || "send");
+    } catch (error) {
+      console.error("Error accepting friend request:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
-    request();
-  }, [user._id, status]);
+    setStatus(friend.connectionStatus || "send");
+  }, [friend.connectionStatus]);
 
   return (
     <>
@@ -72,6 +75,7 @@ const Profile = () => {
             sx={{
               borderRadius: 10,
               overflow: "hidden",
+              padding: 2,
             }}
           >
             <List>
@@ -89,12 +93,20 @@ const Profile = () => {
             </List>
             <Button
               variant="contained"
-              onClick={addFriend}
-              disabled={status !== "send"}
+              onClick={
+                friend.connectionStatus === "send"
+                  ? sendFriendRequest
+                  : acceptFriendRequest
+              }
+              disabled={isLoading}
             >
-              {status === "send" ? "ADD" : status}
+              {isLoading
+                ? "Loading..."
+                : status === "send"
+                ? "Add Friend"
+                : status}
             </Button>
-            {friend?.connections?.includes(user._id) && (
+            {friend.connectionStatus === "accepted" && (
               <Button variant="contained">Remove</Button>
             )}
           </Paper>

@@ -11,6 +11,7 @@ import {
   Grid,
   Card,
   CardContent,
+  Typography,
 } from "@mui/material";
 import axios from "axios";
 import AppContext from "context/AppContext";
@@ -60,52 +61,63 @@ const SearchBox = () => {
     <>
       <Navbar />
       <Box mt={2} display="flex" justifyContent="space-between">
-        <Card sx={{ flexBasis: "45%" }}>
+        <Card sx={{ flexBasis: "45%", boxShadow: 2 }}>
           <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Search User
+            </Typography>
             <TextField
               id="search"
-              label="Search User"
+              label="Enter Name"
               variant="outlined"
               size="small"
               fullWidth
               onChange={handleChange}
+              sx={{ marginBottom: 2 }}
             />
             {isLoading ? (
-              <CircularProgress />
+              <Box display="flex" justifyContent="center">
+                <CircularProgress />
+              </Box>
             ) : searchResults.length > 0 ? (
-              <List space={2}>
+              <List>
                 {searchResults.map((value) => (
-                  <ListItem key={value._id} disableGutters>
-                    <ListItemButton
-                      sx={{
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "green",
-                        },
-                      }}
-                      onClick={() => change(value)}
-                    >
+                  <ListItem
+                    key={value._id}
+                    disableGutters
+                    sx={{
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <ListItemButton onClick={() => change(value)}>
                       <ListItemAvatar>
                         <UserImage profileImg={value.profileImg} />
                       </ListItemAvatar>
                       <ListItemText
+                        primary={`${value.firstName} ${value.lastName}`}
+                        secondary={`${value.occupation}, ${value.connections.length} connections`}
                         sx={{
                           "&:hover": {
                             textDecoration: "underline",
-                            color: "blue",
                           },
                         }}
-                        primary={` ${value.firstName} ${value.lastName}, ${value.occupation}, ${value.connections.length} `}
                       />
                     </ListItemButton>
                   </ListItem>
                 ))}
               </List>
-            ) : null}
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No results found
+              </Typography>
+            )}
           </CardContent>
         </Card>
-        <Box width={20} /> {/* Space between cards */}
-        <Card sx={{ flexBasis: "45%" }}>
+        <Box width={20} />
+        <Card sx={{ flexBasis: "45%", boxShadow: 2 }}>
           <CardContent>
             <FriendListWidget userId={user.id} />
           </CardContent>
