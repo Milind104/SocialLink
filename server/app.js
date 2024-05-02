@@ -7,6 +7,8 @@ import postRouter from "./routes/post.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import messageRouter from "./routes/message.routes.js";
 import helmet from "helmet";
+import companyRouter from "./routes/company.routes.js";
+import JobRouter from "./routes/job.routes.js";
 
 const app = express();
 const allowedOrigins = ["http://localhost:3000", "http://localhost:3001", "*"];
@@ -29,4 +31,6 @@ app.use("/auth", userRouter);
 app.use("/posts", postRouter);
 app.use("/chat", chatRouter);
 app.use("/message", messageRouter);
+app.use("/company", companyRouter);
+app.use("/job", JobRouter);
 export default app;
