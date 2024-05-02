@@ -1,5 +1,7 @@
 Hi guys, Welcome to you all
+
 # LinkedIn Clone
+
 Features:-
 
 1. USER AUTHENTICATION AND REGISTRATION :-
@@ -33,20 +35,33 @@ Features:-
    Users can view their friend list and posts.
    Users can see their own posts, as well as posts from other users on their profile page.
    The profile page is accessible by clicking on a user's name from the friend list or posts.
-   
+
+9. ONE TO ONE CHAT:
+   Users can chat to their connections in real time end to end encrypted using socket.io library
+   in backend and for frontend socket.io-client libray.
 
 10. ERROR HANDLING AND VALIDATION :-
-   Proper error handling and validation are implemented for forms and user input.
+    Proper error handling and validation are implemented for forms and user input.
 
 11. API ENDPOINTS AND DATA STORAGE :-
-   Backend APIs are used for handling user authentication, post-creation, and other functionalities.
-   User and post data are stored in a database (e.g., MongoDB) for persistent storage.
------------------------------------------------------------------------------------------
-------------Some Picture of Website--------- 
+    Backend APIs are used for handling user authentication, post-creation, and other functionalities.
+    User and post data are stored in a database (e.g., MongoDB) for persistent storage.
+12. Job Apply:-
+    Users can apply to job created by company and look for their desired jobs.
 
-![alt text](client/photos/signup.png)
-![alt text](client/photos/login.png)
-![alt text](client/photos/HomePage.png)
-![alt text](client/photos/post.png)
+---
+
+------------Some Picture of Website---------
+
+![alt text](client/photos/loginpage.png)
+![alt text](client/photos/signuppage.png)
+![alt text](client/photos/homepage.png)
+![alt text](client/photos/homepagedark.png)
+![alt text](client/photos/postlike.png)
 ![alt text](client/photos/comment_darkmode.png)
-
+![alt text](client/photos/chat.jpg)
+![alt text](client/photos/search1.png)
+![alt text](client/photos/search2.png)
+![alt text](client/photos/job_post.jpg)
+![alt text](client/photos/jobshow.jpg)
+![alt text](client/photos/myjobs.jpg)
