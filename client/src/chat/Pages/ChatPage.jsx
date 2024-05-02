@@ -15,7 +15,7 @@ const ChatPage = () => {
       {/* <Navbar /> */}
       <div style={{ width: "100%" }}>
         {user && <SideDrawer />}
-        {/* <Box
+        <Box
           display={"flex"}
           justifyContent={"space-between"}
           width={"100%"}
@@ -24,7 +24,7 @@ const ChatPage = () => {
         >
           {user && <MyChats />}
           {user && <ChatBox />}
-        </Box> */}
+        </Box>
       </div>
     </>
   );

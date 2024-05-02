@@ -1,39 +1,53 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import AppContext from "./AppContext";
 import { useNavigate } from "react-router-dom";
-const AppState=(props)=>{
-    // save logged in user
-    const [user, setuser] = useState();
-    // chat we selected 
-    const [selectedChat, setselectedChat] = useState();
-    // all chats users have
-    const [Chats, setChats] = useState([]);
-    // to fetch chat again if needed
-    const [fetchAgain, setfetchAgain] = useState(false);
+const AppState = (props) => {
+  // save logged in user
+  const [user, setuser] = useState();
+  // chat we selected
+  const [selectedChat, setselectedChat] = useState();
+  // all chats users have
+  const [Chats, setChats] = useState([]);
+  // to fetch chat again if needed
+  const [fetchAgain, setfetchAgain] = useState(false);
+  // to fetch friend
+  const [friend, setFriend] = useState({});
 
-    const navigate = useNavigate();
-    useEffect(() => {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      setuser(userInfo);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    setuser(userInfo);
 
-      if(!userInfo){
-        navigate('/');
-      }
-    }, [navigate]);
-    
-    return (
-        <AppContext.Provider value={{setuser,user,setselectedChat,selectedChat,Chats,setChats,fetchAgain,setfetchAgain}}>
-          {props.children}
-        </AppContext.Provider>
-    )
-}
+    if (!userInfo) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  return (
+    <AppContext.Provider
+      value={{
+        setuser,
+        user,
+        setselectedChat,
+        selectedChat,
+        Chats,
+        setChats,
+        fetchAgain,
+        setfetchAgain,
+        friend,
+        setFriend,
+      }}
+    >
+      {props.children}
+    </AppContext.Provider>
+  );
+};
 export default AppState;
-
 
 // import AppContext from "./AppContext";
 // import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-// import axios from "axios"; 
+// import axios from "axios";
 // const AppState=(props)=>{
 //   const authtoken = localStorage.getItem('token');
 //   const saved = localStorage.getItem('user');
@@ -88,5 +102,3 @@ export default AppState;
 //     )
 // }
 // export default AppState;
-
-

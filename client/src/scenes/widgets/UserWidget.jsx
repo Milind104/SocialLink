@@ -25,12 +25,12 @@ const UserWidget = ({ userId, profileImg }) => {
   const getUser = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/users/${userId}`,
+        `http://localhost:3001/auth/profile/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setUser(response.data);
+      setUser(response.data.data);
     } catch (error) {
       // Handle error
       console.error("Error fetching user:", error);

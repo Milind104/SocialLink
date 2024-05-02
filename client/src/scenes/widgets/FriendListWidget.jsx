@@ -4,6 +4,7 @@ import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import FriendPageList from "scenes/profilePage/FriendPageList";
 import { setFriends } from "state";
 
 const FriendListWidget = ({ userId }) => {
@@ -55,24 +56,13 @@ const FriendListWidget = ({ userId }) => {
         fontWeight="500"
         sx={{ mb: "1.5rem" }}
       >
-        {friends.length}
+        {friends.length} Connections
       </Typography>
 
       <Box display="flex" flexDirection="column" gap="1.5rem">
         {friends && friends.length > 0 ? (
           // { friends }
-          friends.map(
-            (friend) =>
-              friend && (
-                <Friend
-                  key={friend._id}
-                  friendId={friend._id}
-                  name={`${friend.firstName} ${friend.lastName}`}
-                  subtitle={friend.occupation}
-                  userPicturePath={friend.profileImg}
-                />
-              )
-          )
+          friends.map((friend) => <FriendPageList friend={friend} />)
         ) : (
           <Typography>No friends to display</Typography>
         )}

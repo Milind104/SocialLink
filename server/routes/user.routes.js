@@ -14,6 +14,8 @@ import {
   removeConnection,
   getImageUrl,
   allUsers,
+  requestStatus,
+  getUserProfile,
 } from "../controllers/user.controller.js";
 import verifyJWT from "../middleware/auth.middleware.js";
 
@@ -42,7 +44,8 @@ Router.route("/login").post(loginUser);
 Router.route("/refresh-accesstoken").post(refreshAccessToken);
 
 /* protected route */
-
+// user profile
+Router.route("/profile/:id").get(getUserProfile);
 //logout
 Router.route("/logout").post(verifyJWT, logoutUser);
 
@@ -50,13 +53,13 @@ Router.route("/logout").post(verifyJWT, logoutUser);
 Router.route("/image/:userId").get(verifyJWT, getImageUrl);
 
 // connection request
-Router.route("/connect/:id").post(verifyJWT, connectToUser);
+Router.route("/sendreq/:id").post(verifyJWT, connectToUser);
 
 // requests
-Router.route("/requests/:id").get(verifyJWT, UserRequests);
+Router.route("/pendingreq").post(verifyJWT, UserRequests);
 
 // accept request
-Router.route("/accept/:requestId").patch(verifyJWT, acceptUserRequest);
+Router.route("/accept/:requestId").post(verifyJWT, acceptUserRequest);
 
 // get all connections
 Router.route("/connections/:userId").get(getAllConnections);
@@ -66,6 +69,9 @@ Router.route("/:id/:connectionId").delete(verifyJWT, removeConnection);
 
 // find user by name
 Router.route("/").get(verifyJWT, allUsers);
+
+// request status
+Router.route("/request/:userId").post(verifyJWT, requestStatus);
 /*Message routes*/
 
 export default Router;

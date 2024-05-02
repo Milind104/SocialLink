@@ -13,11 +13,11 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
   const friends = useSelector((state) => state.user.connections);
-  console.log("This is from Friendjsx.....");
-  console.log("friendid", friendId);
-  console.log("name", name);
-  console.log("subtitle", subtitle);
-  console.log("userpicture", userPicturePath);
+  // console.log("This is from Friendjsx.....");
+  // console.log("friendid", friendId);
+  // console.log("name", name);
+  // console.log("subtitle", subtitle);
+  // console.log("userpicture", userPicturePath);
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
   const primaryDark = palette.primary.dark;

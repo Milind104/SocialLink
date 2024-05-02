@@ -2,7 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import userRouter from "./routes/user.routes.js";
-import userRoutes from "./routes/users.js";
+// import userRoutes from "./routes/users.js";
 import postRouter from "./routes/post.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import messageRouter from "./routes/message.routes.js";
@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 /* ROUTES */
 app.use("/auth", userRouter);
-app.use("/users", userRoutes);
+// app.use("/users", userRoutes);
 app.use("/posts", postRouter);
 app.use("/chat", chatRouter);
 app.use("/message", messageRouter);

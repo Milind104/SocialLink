@@ -4,28 +4,47 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import Chat from "../models/chat.model.js";
+import { ObjectId } from "mongodb";
 
+const getUserProfile = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  // const id = req.user._id;
+  // if (userId !== id.toString()) {
+  //   throw new ApiError(401, "Authorize first");
+  // }
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(500, "Something went wrong while accessing database");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User profile fetched successfully"));
+});
 /*Connection Actions*/
 const connectToUser = asyncHandler(async (req, res) => {
   const receiver = req.params.id;
   const sender = req.user._id;
 
-  // console.log(receiver, sender.toString());
+  console.log("Connect to user from this is ......");
   // self connection request
   if (receiver === sender.toString()) {
     throw new ApiError(401, "Operation is not possible");
   }
 
-  const connections = await Connection.find({
+  const connections = await Connection.findOne({
     $or: [
       {
-        $and: [{ sender: receiver }, { receiver: sender }],
+        sender: receiver,
+        receiver: sender,
       },
       {
-        $and: [{ sender }, { receiver }],
+        sender,
+        receiver,
       },
     ],
   });
+  console.log(connections);
   if (connections) {
     return res
       .status(200)
@@ -49,16 +68,18 @@ const connectToUser = asyncHandler(async (req, res) => {
 });
 
 const UserRequests = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
-  const id = req.params.id;
+  console.log("Hello from this side");
+  const id = req.user._id.toString();
+  // const id = req.params.id;
 
-  // console.log(id, userId.toString());
-  if (id !== userId.toString()) {
-    throw new ApiError(401, "Authorized first");
-  }
+  console.log("heelo", id);
+  // if (id !== userId.toString()) {
+  //   throw new ApiError(401, "Authorized first");
+  // }
 
   const requests = await Connection.find({ receiver: id, status: "Pending" });
 
+  console.log(requests);
   if (!requests) {
     throw new ApiError(500, "Something went wrong while working with database");
   }
@@ -70,9 +91,9 @@ const UserRequests = asyncHandler(async (req, res) => {
 
 const acceptUserRequest = asyncHandler(async (req, res) => {
   const reqId = req.params.requestId;
-
+  console.log(reqId);
   const request = await Connection.findById(reqId);
-
+  console.log(request);
   if (!request) {
     throw new ApiError(404, "No such request connection exist");
   }
@@ -145,7 +166,7 @@ const getAllConnections = asyncHandler(async (req, res) => {
     }
   );
   // res.status(200).json(formattedFriends);
-  console.log(friends);
+  console.log(friends, "get all connections...");
   if (!friends) {
     throw new ApiError(500, "Something went wrong while getting connections");
   }
@@ -185,10 +206,6 @@ const removeConnection = asyncHandler(async (req, res) => {
   if (!resp) {
     throw new ApiError(500, "Something went wrong while working with database");
   }
-  await User.update(
-    { _id: id },
-    { $pull: { "contact.phone": { number: "+1786543589455" } } }
-  );
   return res
     .status(200)
     .json(new ApiResponse(200, resp, "Connection removed successfully"));
@@ -239,7 +256,28 @@ const allUsers = async (req, res) => {
   res.send(users);
 };
 
+const requestStatus = asyncHandler(async (req, res) => {
+  const userId = new ObjectId(req.params.userId);
+  const id = req.user._id;
+  console.log("hello from req status", userId, id);
+  const connections = await Connection.find({
+    $or: [
+      { sender: userId, receiver: id },
+      { sender: id, receiver: userId },
+    ],
+  });
+  console.log(connections);
+  if (!connections) {
+    throw new ApiError(500, "Something went wrong while accessing database");
+  }
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, connections[0], "connections fetched successfully!!")
+    );
+});
 export {
+  getUserProfile,
   connectToUser,
   UserRequests,
   acceptUserRequest,
@@ -247,4 +285,5 @@ export {
   removeConnection,
   getImageUrl,
   allUsers,
+  requestStatus,
 };
